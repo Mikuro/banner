@@ -1,0 +1,36 @@
+.PHONY: status logs logs-app logs-minio stop restart clean test
+
+status:
+	docker-compose -f docker-compose.raspberry.yml ps
+
+logs:
+	docker-compose -f docker-compose.raspberry.yml logs -f
+
+logs-app:
+	docker-compose -f docker-compose.raspberry.yml logs -f banner
+
+logs-minio:
+	docker-compose -f docker-compose.raspberry.yml logs -f minio
+
+stop:
+	docker-compose -f docker-compose.raspberry.yml down
+
+restart:
+	docker-compose -f docker-compose.raspberry.yml restart
+
+clean:
+	docker-compose -f docker-compose.raspberry.yml down -v
+	docker system prune -f
+
+test:
+	curl -f http://localhost:8080/ && echo " API работает" || echo " API не отвечает"
+
+help:
+	@echo "Доступные команды:"
+	@echo "  make status   - статус сервисов"
+	@echo "  make logs     - все логи"
+	@echo "  make logs-app - логи приложения"
+	@echo "  make stop     - остановить"
+	@echo "  make restart  - перезапустить"
+	@echo "  make clean    - полная очистка"
+	@echo "  make test     - тест API"
