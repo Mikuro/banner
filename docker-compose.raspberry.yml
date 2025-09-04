@@ -1,8 +1,7 @@
-version: '3.8'
-
 services:
   minio:
     image: minio/minio:latest
+    platform: linux/arm64
     container_name: promo-minio
     ports:
       - "9000:9000"
@@ -10,10 +9,9 @@ services:
     volumes:
       - minio_data:/data
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: hermental
+      MINIO_ROOT_PASSWORD: Appledermo2
       # Указываем VPS IP для внешних ссылок
-      MINIO_SERVER_URL: http://:9000
     command: server /data --console-address ":9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
@@ -30,9 +28,9 @@ services:
       - "8080:8080"
     environment:
       - MINIO_ENDPOINT=http://minio:9000                    # Внутренний адрес
-      - MINIO_EXTERNAL_ENDPOINT=http://:9000       # Внешний через VPS!
-      - MINIO_ACCESS_KEY=minioadmin
-      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_EXTERNAL_ENDPOINT=http://45.8.228.89:9000       # Внешний через VPS!
+      - MINIO_ACCESS_KEY=hermental
+      - MINIO_SECRET_KEY=Appledermo2
     depends_on:
       minio:
         condition: service_healthy
