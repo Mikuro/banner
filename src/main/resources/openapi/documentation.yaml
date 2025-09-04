@@ -1,14 +1,15 @@
 openapi: "3.0.3"
 info:
-  title: "Application API"
-  description: "Application API"
+  title: "Promo Banner Service API"
+  description: "API для загрузки изображений и получения промо-баннеров в различных форматах"
   version: "1.0.0"
 servers:
-  - url: "http://0.0.0.0:8080"
+  - url: "http://45.8.228.89/"
 paths:
   /:
     get:
-      description: "Hello World!"
+      summary: "Health check"
+      description: "Проверка работоспособности сервиса"
       responses:
         "200":
           description: "OK"
@@ -16,8 +17,210 @@ paths:
             text/plain:
               schema:
                 type: "string"
-              examples:
-                Example#1:
-                  value: "Hello World!"
+              example: "Промо-сервис работает! 🚀"
+  /upload:
+    post:
+      summary: "Загрузка изображения"
+      description: "Загружает изображение в хранилище и возвращает ID для дальнейшего использования"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: "Файл изображения"
+              required:
+                - image
+      responses:
+        "200":
+          description: "Изображение успешно загружено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+        "400":
+          description: "Изображение не найдено в запросе"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+        "500":
+          description: "Ошибка сервера при загрузке"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadResponse"
+  /link/{imageId}:
+    get:
+      summary: "Получение ссылки на изображение"
+      description: "Возвращает presigned URL для прямого доступа к изображению"
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Идентификатор изображения"
+      responses:
+        "200":
+          description: "Ссылка успешно сгенерирована"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "404":
+          description: "Изображение не найдено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+        "500":
+          description: "Ошибка сервера при генерации ссылки"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LinkResponse"
+  /html-embed/{imageId}:
+    get:
+      summary: "HTML с встроенным изображением"
+      description: "Возвращает HTML с изображением, встроенным как base64"
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Идентификатор изображения"
+      responses:
+        "200":
+          description: "HTML успешно сгенерирован"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+        "404":
+          description: "Изображение не найдено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+        "500":
+          description: "Ошибка сервера при генерации HTML"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+  /html-link/{imageId}:
+    get:
+      summary: "HTML со ссылкой на изображение"
+      description: "Возвращает HTML с изображением по внешней ссылке"
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Идентификатор изображения"
+      responses:
+        "200":
+          description: "HTML успешно сгенерирован"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+        "404":
+          description: "Изображение не найдено"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+        "500":
+          description: "Ошибка сервера при генерации HTML"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HtmlResponse"
+  /preview/{imageId}:
+    get:
+      summary: "Превью изображения"
+      description: "Отображает изображение в браузере для предварительного просмотра"
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Идентификатор изображения"
+      responses:
+        "200":
+          description: "HTML страница с изображением"
+          content:
+            text/html:
+              schema:
+                type: string
+        "404":
+          description: "Изображение не найдено"
+          content:
+            text/plain:
+              schema:
+                type: string
+        "500":
+          description: "Ошибка сервера"
+          content:
+            text/plain:
+              schema:
+                type: string
 components:
-  schemas: { }
+  schemas:
+    UploadResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: "Статус операции"
+        imageId:
+          type: string
+          nullable: true
+          description: "ID загруженного изображения"
+        message:
+          type: string
+          nullable: true
+          description: "Сообщение об ошибке или успехе"
+      required:
+        - success
+    LinkResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: "Статус операции"
+        imageUrl:
+          type: string
+          nullable: true
+          description: "URL для доступа к изображению"
+        message:
+          type: string
+          nullable: true
+          description: "Сообщение об ошибке или успехе"
+      required:
+        - success
+    HtmlResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: "Статус операции"
+        html:
+          type: string
+          nullable: true
+          description: "Base64-закодированный HTML"
+        message:
+          type: string
+          nullable: true
+          description: "Сообщение об ошибке или успехе"
+      required:
+        - success
