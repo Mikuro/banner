@@ -72,17 +72,7 @@ class MinioService {
 
     fun getPresignedUrl(imageId: String, contentType: String): String {
         val fileName = "$imageId.${getFileExtension(contentType)}"
-        val presignedUrl = minioClient.getPresignedObjectUrl(
-            GetPresignedObjectUrlArgs.builder()
-                .method(Method.GET)
-                .bucket(bucketName)
-                .`object`(fileName)
-                .expiry(24, TimeUnit.HOURS) // URL действителен 24 часа
-                .build()
-        )
-
-        // ВАЖНО! Заменяем внутренний endpoint на внешний для клиентов
-        return presignedUrl.replace(internalEndpoint, externalEndpoint)
+        return "$externalEndpoint/promo-images/$fileName"
     }
 
     fun getImageBytes(imageId: String, contentType: String): ByteArray {
